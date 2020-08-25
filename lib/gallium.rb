@@ -1,31 +1,31 @@
 require "gallium/version"
 require "dry/cli"
-require "tty-prompt"
+require "curses"
 
 module Gallium
   class Error < StandardError; end
-  # Your code goes here...
 
   class CLI
     def call(*args)
-      Dry::CLI.new(Commands).call(*args)
+      Dry::CLI.new(GalliumCommand).call(*args)
     end
 
-    module Commands
-      extend Dry::CLI::Registry
-
-      class Testing < Dry::CLI::Command
-        def call(*)
-          prompt = TTY::Prompt.new
-          prompt.select("What size?") do |menu|
-            menu.choice name: "small",  value: 1
-            menu.choice name: "medium",  value: 2
-            menu.choice name: "large",  value: 3
+    class GalliumCommand < Dry::CLI::Command
+      def call(*)
+        win = Curses::Window.new(20, 20, 0, 0)
+        win.keypad = true
+        loop do
+          input = win.getch
+          win.clear
+          if input == Curses::Key::LEFT then
+            win.addstr(input.to_s)
+            win.addstr("Left key")
+          else
+            win.addstr("other")
           end
+          win.refresh
         end
       end
-
-      register "testing", Testing
     end
   end
 end
