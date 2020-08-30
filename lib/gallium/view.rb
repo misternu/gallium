@@ -7,9 +7,11 @@ module Gallium
       @window = Curses::Window.new(50, 50, 0, 0)
       @window.keypad = true
       @window.nodelay = true
+      @keyboard = Keyboard.new(@window)
     end
 
     def render(controller)
+      @keyboard.handle_keys(controller)
       options, selected = controller.options, controller.selected
       display_options(options, selected)
     end
@@ -54,17 +56,6 @@ module Gallium
 
     def print_option(option)
       @window.addstr("#{option}\n")
-    end
-
-    def handle_keys(controller)
-      case @window.getch
-      when Curses::Key::UP
-        controller.key_up
-      when Curses::Key::DOWN
-        controller.key_down
-      when 27
-        controller.key_escape
-      end
     end
   end
 end
